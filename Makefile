@@ -1,6 +1,6 @@
 # note: this Makefile builds the Linux version only
 
-CFLAGS = -Wall -Os
+CFLAGS = -Wall -Os 
 CFLAGS += -ffast-math
 CFLAGS += -finline-functions-called-once
 CFLAGS += -fno-loop-optimize
@@ -14,7 +14,7 @@ STRIPFLAGS += -R .gnu.version
 
 BIN = minimp3
 FINALBIN = $(BIN)-linux
-OBJS = player_new.o minimp3.o
+OBJS = player_amebamod.o minimp3.o
 
 all:	$(BIN)
 
