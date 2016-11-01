@@ -21,7 +21,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "libc.h"
 #include "minimp3.h"
 
 #define MP3_FRAME_SIZE 1152
@@ -57,7 +56,7 @@
     #define MULL(a,b) (((int64_t)(a) * (int64_t)(b)) >> FRAC_BITS)
     #define MULH(a,b) (((int64_t)(a) * (int64_t)(b)) >> 32)
 #else
-    static INLINE int MULL(int a, int b) {
+    static inline int MULL(int a, int b) {
         int res;
         __asm {
             mov eax, a
@@ -69,7 +68,7 @@
         }
         return res;
     }
-    static INLINE int MULH(int a, int b) {
+    static inline int MULH(int a, int b) {
         int res;
         __asm {
             mov eax, a
@@ -809,7 +808,7 @@ static const int icos36h[9] = {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static INLINE int unaligned32_be(const uint8_t *p)
+static inline int unaligned32_be(const uint8_t *p)
 {
         return (((p[0]<<8) | p[1])<<16) | (p[2]<<8) | (p[3]);
 }
@@ -853,11 +852,11 @@ static INLINE int unaligned32_be(const uint8_t *p)
 #define GET_CACHE(name, gb)\
         ((uint32_t)name##_cache)
 
-static INLINE int get_bits_count(bitstream_t *s){
+static inline int get_bits_count(bitstream_t *s){
     return s->index;
 }
 
-static INLINE void skip_bits_long(bitstream_t *s, int n){
+static inline void skip_bits_long(bitstream_t *s, int n){
     s->index += n;
 }
 #define skip_bits skip_bits_long
@@ -874,7 +873,7 @@ static void init_get_bits(bitstream_t *s, const uint8_t *buffer, int bit_size) {
     s->index=0;
 }
 
-static INLINE unsigned int get_bits(bitstream_t *s, int n){
+static inline unsigned int get_bits(bitstream_t *s, int n){
     register int tmp;
     OPEN_READER(re, s)
     UPDATE_CACHE(re, s)
@@ -884,7 +883,7 @@ static INLINE unsigned int get_bits(bitstream_t *s, int n){
     return tmp;
 }
 
-static INLINE int get_bitsz(bitstream_t *s, int n)
+static inline int get_bitsz(bitstream_t *s, int n)
 {
     if (n == 0)
         return 0;
@@ -892,7 +891,7 @@ static INLINE int get_bitsz(bitstream_t *s, int n)
         return get_bits(s, n);
 }
 
-static INLINE unsigned int get_bits1(bitstream_t *s){
+static inline unsigned int get_bits1(bitstream_t *s){
     int index= s->index;
     uint8_t result= s->buffer[ index>>3 ];
     result<<= (index&0x07);
@@ -902,7 +901,7 @@ static INLINE unsigned int get_bits1(bitstream_t *s){
     return result;
 }
 
-static INLINE void align_get_bits(bitstream_t *s)
+static inline void align_get_bits(bitstream_t *s)
 {
     int n= (-get_bits_count(s)) & 7;
     if(n) skip_bits(s, n);
@@ -924,13 +923,13 @@ static INLINE void align_get_bits(bitstream_t *s)
     }\
 }
 
-static INLINE int alloc_table(vlc_t *vlc, int size) {
+static inline int alloc_table(vlc_t *vlc, int size) {
     int index;
     index = vlc->table_size;
     vlc->table_size += size;
     if (vlc->table_size > vlc->table_allocated) {
         vlc->table_allocated += (1 << vlc->bits);
-        vlc->table = libc_realloc(vlc->table, sizeof(VLC_TYPE) * 2 * vlc->table_allocated);
+        vlc->table = realloc(vlc->table, sizeof(VLC_TYPE) * 2 * vlc->table_allocated);
         if (!vlc->table)
             return -1;
     }
@@ -1010,7 +1009,7 @@ static int build_table(
     return table_index;
 }
 
-static INLINE int init_vlc(
+static inline int init_vlc(
     vlc_t *vlc, int nb_bits, int nb_codes,
     const void *bits, int bits_wrap, int bits_size,
     const void *codes, int codes_wrap, int codes_size
@@ -1020,7 +1019,7 @@ static INLINE int init_vlc(
                     bits, bits_wrap, bits_size,
                     codes, codes_wrap, codes_size,
                     0, 0) < 0) {
-        libc_free(vlc->table);
+        free(vlc->table);
         return -1;
     }
     return 0;
@@ -1057,7 +1056,7 @@ static INLINE int init_vlc(
     SKIP_BITS(name, gb, n)\
 }
 
-static INLINE int get_vlc2(bitstream_t *s, VLC_TYPE (*table)[2], int bits, int max_depth) {
+static inline int get_vlc2(bitstream_t *s, VLC_TYPE (*table)[2], int bits, int max_depth) {
     int code;
 
     OPEN_READER(re, s)
@@ -1082,7 +1081,7 @@ static void switch_buffer(mp3_context_t *s, int *pos, int *end_pos, int *end_pos
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static INLINE int mp3_check_header(uint32_t header){
+static inline int mp3_check_header(uint32_t header){
     /* header */
     if ((header & 0xffe00000) != 0xffe00000)
         return -1;
@@ -1119,7 +1118,7 @@ static void lsf_sf_expand(
     slen[0] = sf;
 }
 
-static INLINE int l3_unscale(int value, int exponent)
+static inline int l3_unscale(int value, int exponent)
 {
     unsigned int m;
     int e;
@@ -1134,7 +1133,7 @@ static INLINE int l3_unscale(int value, int exponent)
     return m;
 }
 
-static INLINE int round_sample(int *sum) {
+static inline int round_sample(int *sum) {
     int sum1;
     sum1 = (*sum) >> OUT_SHIFT;
     *sum &= (1<<OUT_SHIFT)-1;
@@ -1212,7 +1211,7 @@ static void reorder_block(mp3_context_t *s, granule_t *g)
             ptr++;
         }
         ptr+=2*len;
-        libc_memcpy(ptr1, tmp, len * 3 * sizeof(*ptr1));
+        memcpy(ptr1, tmp, len * 3 * sizeof(*ptr1));
     }
 }
 
@@ -1404,7 +1403,7 @@ static int huffman_decode(
         vlc = &huff_vlc[l];
 
         if(!l){
-            libc_memset(&g->sb_hybrid[s_index], 0, sizeof(*g->sb_hybrid)*2*j);
+            memset(&g->sb_hybrid[s_index], 0, sizeof(*g->sb_hybrid)*2*j);
             s_index += 2*j;
             continue;
         }
@@ -1507,7 +1506,7 @@ static int huffman_decode(
         }
         s_index+=4;
     }
-    libc_memset(&g->sb_hybrid[s_index], 0, sizeof(*g->sb_hybrid)*(576 - s_index));
+    memset(&g->sb_hybrid[s_index], 0, sizeof(*g->sb_hybrid)*(576 - s_index));
 
     /* skip extension bits */
     bits_left = end_pos2 - get_bits_count(&s->gb);
@@ -2022,7 +2021,7 @@ static void mp3_synth_filter(
         synth_buf[j] = v;
     }
     /* copy to avoid wrap */
-    libc_memcpy(synth_buf + 512, synth_buf, 32 * sizeof(int16_t));
+    memcpy(synth_buf + 512, synth_buf, 32 * sizeof(int16_t));
 
     samples2 = samples + 31 * incr;
     w = window;
@@ -2253,7 +2252,7 @@ static int mp_decode_layer3(mp3_context_t *s) {
                         for(i=0;i<n;i++)
                             g->scale_factors[j++] = get_bits(&s->gb, slen1);
                     }else{
-                        libc_memset((void*) &g->scale_factors[j], 0, n);
+                        memset((void*) &g->scale_factors[j], 0, n);
                         j += n;
 //                        for(i=0;i<n;i++)
 //                            g->scale_factors[j++] = 0;
@@ -2278,7 +2277,7 @@ static int mp_decode_layer3(mp3_context_t *s) {
                                 for(i=0;i<n;i++)
                                     g->scale_factors[j++] = get_bits(&s->gb, slen);
                             }else{
-                                libc_memset((void*) &g->scale_factors[j], 0, n);
+                                memset((void*) &g->scale_factors[j], 0, n);
                                 j += n;
 //                                for(i=0;i<n;i++)
 //                                    g->scale_factors[j++] = 0;
@@ -2339,14 +2338,14 @@ static int mp_decode_layer3(mp3_context_t *s) {
                         for(i=0;i<n;i++)
                             g->scale_factors[j++] = get_bits(&s->gb, sl);
                     }else{
-                        libc_memset((void*) &g->scale_factors[j], 0, n);
+                        memset((void*) &g->scale_factors[j], 0, n);
                         j += n;                        
 //                        for(i=0;i<n;i++)
 //                            g->scale_factors[j++] = 0;
                     }
                 }
                 /* XXX: should compute exact size */
-                libc_memset((void*) &g->scale_factors[j], 0, 40 - j);
+                memset((void*) &g->scale_factors[j], 0, 40 - j);
 //                for(;j<40;j++)
 //                    g->scale_factors[j] = 0;
             }
@@ -2391,7 +2390,7 @@ static int mp3_decode_main(
             align_get_bits(&s->gb);
             i= (s->gb.size_in_bits - get_bits_count(&s->gb))>>3;
             if(i >= 0 && i <= BACKSTEP_SIZE){
-                libc_memmove(s->last_buf, s->gb.buffer + (get_bits_count(&s->gb)>>3), i);
+                memmove(s->last_buf, s->gb.buffer + (get_bits_count(&s->gb)>>3), i);
                 s->last_buf_size=i;
             }
             s->gb= s->in_gb;
@@ -2404,7 +2403,7 @@ static int mp3_decode_main(
             i = buf_size - HEADER_SIZE;
             if (BACKSTEP_SIZE < i) i = BACKSTEP_SIZE;
         }
-        libc_memcpy(s->last_buf + s->last_buf_size, s->gb.buffer + buf_size - HEADER_SIZE - i, i);
+        memcpy(s->last_buf + s->last_buf_size, s->gb.buffer + buf_size - HEADER_SIZE - i, i);
         s->last_buf_size += i;
 
     /* apply the synthesis filter */
@@ -2452,8 +2451,8 @@ static int mp3_decode_init(mp3_context_t *s) {
             uint8_t  tmp_bits [512];
             uint16_t tmp_codes[512];
 
-            libc_memset(tmp_bits , 0, sizeof(tmp_bits ));
-            libc_memset(tmp_codes, 0, sizeof(tmp_codes));
+            memset(tmp_bits , 0, sizeof(tmp_bits ));
+            memset(tmp_codes, 0, sizeof(tmp_codes));
 
             xsize = h->xsize;
             n = xsize * xsize;
@@ -2484,18 +2483,18 @@ static int mp3_decode_init(mp3_context_t *s) {
         }
 
         /* compute n ^ (4/3) and store it in mantissa/exp format */
-        table_4_3_exp= libc_malloc(TABLE_4_3_SIZE * sizeof(table_4_3_exp[0]));
+        table_4_3_exp= malloc(TABLE_4_3_SIZE * sizeof(table_4_3_exp[0]));
         if(!table_4_3_exp)
             return -1;
-        table_4_3_value= libc_malloc(TABLE_4_3_SIZE * sizeof(table_4_3_value[0]));
+        table_4_3_value= malloc(TABLE_4_3_SIZE * sizeof(table_4_3_value[0]));
         if(!table_4_3_value)
             return -1;
 
         for(i=1;i<TABLE_4_3_SIZE;i++) {
             double f, fm;
             int e, m;
-            f = libc_pow((double)(i/4), 4.0 / 3.0) * libc_pow(2, (i&3)*0.25);
-            fm = libc_frexp(f, &e);
+            f = pow((double)(i/4), 4.0 / 3.0) * pow(2, (i&3)*0.25);
+            fm = frexp(f, &e);
             m = (uint32_t)(fm*(1LL<<31) + 0.5);
             e+= FRAC_BITS - 31 + 5 - 100;
             table_4_3_value[i] = m;
@@ -2503,7 +2502,7 @@ static int mp3_decode_init(mp3_context_t *s) {
         }
         for(i=0; i<512*16; i++){
             int exponent= (i>>4);
-            double f= libc_pow(i&15, 4.0 / 3.0) * libc_pow(2, (exponent-400)*0.25 + FRAC_BITS + 5);
+            double f= pow(i&15, 4.0 / 3.0) * pow(2, (exponent-400)*0.25 + FRAC_BITS + 5);
             expval_table[exponent][i&15]= f;
             if((i&15)==1)
                 exp_table[exponent]= f;
@@ -2530,7 +2529,7 @@ static int mp3_decode_init(mp3_context_t *s) {
 
             for(j=0;j<2;j++) {
                 e = -(j + 1) * ((i + 1) >> 1);
-                f = libc_pow(2.0, e / 4.0);
+                f = pow(2.0, e / 4.0);
                 k = i & 1;
                 is_table_lsf[j][k ^ 1][i] = FIXR(f);
                 is_table_lsf[j][k][i] = FIXR(1.0);
@@ -2632,13 +2631,15 @@ retry:
 ////////////////////////////////////////////////////////////////////////////////
 
 mp3_decoder_t mp3_create(void) {
-    void *dec = libc_calloc(sizeof(mp3_context_t), 1);
-    if (dec) mp3_decode_init((mp3_context_t*) dec);
+    //void *dec = calloc(sizeof(mp3_context_t), 1);
+    void *dec = malloc(sizeof(mp3_context_t));
+    memset((void*)dec, 0x00, sizeof(mp3_context_t));
+	if (dec) mp3_decode_init((mp3_context_t*) dec);
     return (mp3_decoder_t) dec;
 }
 
 void mp3_done(mp3_decoder_t *dec) {
-    if (dec) libc_free(dec);
+    if (dec) free(dec);
 }
 
 int mp3_decode(mp3_decoder_t *dec, void *buf, int bytes, signed short *out, mp3_info_t *info) {

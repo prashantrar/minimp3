@@ -3,6 +3,11 @@
 
 #define MP3_MAX_SAMPLES_PER_FRAME (1152*2)
 
+#include <stdio.h>
+#include <stdint.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 typedef struct _mp3_info {
     int sample_rate;
     int channels;
