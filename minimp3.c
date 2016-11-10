@@ -50,7 +50,7 @@
 #define FIX(a)   ((int)((a) * FRAC_ONE))
 #define FIXR(a)   ((int)((a) * FRAC_ONE + 0.5))
 #define FRAC_RND(a) (((a) + (FRAC_ONE/2)) >> FRAC_BITS)
-#define FIXHR(a) ((int)((a) * (1LL<<32) + 0.5))
+#define FIXHR(a) ((int)((a) * (4294967296) + 0.5))
 
 #ifndef _MSC_VER
     #define MULL(a,b) (((int64_t)(a) * (int64_t)(b)) >> FRAC_BITS)
@@ -773,14 +773,14 @@ static const float ci_table[8] = {
     -0.6f, -0.535f, -0.33f, -0.185f, -0.095f, -0.041f, -0.0142f, -0.0037f,
 };
 
-#define C1 FIXHR(0.98480775301220805936/2)
-#define C2 FIXHR(0.93969262078590838405/2)
-#define C3 FIXHR(0.86602540378443864676/2)
-#define C4 FIXHR(0.76604444311897803520/2)
-#define C5 FIXHR(0.64278760968653932632/2)
-#define C6 FIXHR(0.5/2)
-#define C7 FIXHR(0.34202014332566873304/2)
-#define C8 FIXHR(0.17364817766693034885/2)
+#define C1 (2114858546.49)
+#define C2 (2017974537.77)
+#define C3 (1859775393.87)
+#define C4 (1645067915.7)
+#define C5 (1380375881.42)
+#define C6 (1073741824.5)
+#define C7 (734482665.566)
+#define C8 (372906622.53)
 
 static const int icos36[9] = {
     FIXR(0.50190991877167369479),
@@ -795,14 +795,14 @@ static const int icos36[9] = {
 };
 
 static const int icos36h[9] = {
-    FIXHR(0.50190991877167369479/2),
-    FIXHR(0.51763809020504152469/2), //0
-    FIXHR(0.55168895948124587824/2),
-    FIXHR(0.61038729438072803416/2),
-    FIXHR(0.70710678118654752439/2), //1
-    FIXHR(0.87172339781054900991/2),
-    FIXHR(1.18310079157624925896/4),
-    FIXHR(1.93185165257813657349/4), //2
+    (1077843343.81),
+    (1111619334.79), //0
+    (1184743019.77),
+    (1310796734.13),
+    (1518500250.47), //1
+    (1872011742.85),
+    (1270344802.41),
+    (2074309917.62), //2
 //    FIXHR(5.73685662283492756461),
 };
 
@@ -1771,22 +1771,22 @@ static void compute_imdct(
     sum2 op2 MULS((w2)[7 * 64], tmp);\
 }
 
-#define COS0_0  FIXHR(0.50060299823519630134/2)
-#define COS0_1  FIXHR(0.50547095989754365998/2)
-#define COS0_2  FIXHR(0.51544730992262454697/2)
-#define COS0_3  FIXHR(0.53104259108978417447/2)
-#define COS0_4  FIXHR(0.55310389603444452782/2)
-#define COS0_5  FIXHR(0.58293496820613387367/2)
-#define COS0_6  FIXHR(0.62250412303566481615/2)
-#define COS0_7  FIXHR(0.67480834145500574602/2)
-#define COS0_8  FIXHR(0.74453627100229844977/2)
-#define COS0_9  FIXHR(0.83934964541552703873/2)
-#define COS0_10 FIXHR(0.97256823786196069369/2)
-#define COS0_11 FIXHR(1.16943993343288495515/4)
-#define COS0_12 FIXHR(1.48416461631416627724/4)
-#define COS0_13 FIXHR(2.05778100995341155085/8)
-#define COS0_14 FIXHR(3.40760841846871878570/8)
-#define COS0_15 FIXHR(10.19000812354805681150/32)
+#define COS0_0  (0.25030149911 * (4294967296) + 0.5)
+#define COS0_1  (0.25273547994 * (4294967296) + 0.5)
+#define COS0_2  (0.25772365496 * (4294967296) + 0.5)
+#define COS0_3  (0.26552129554 * (4294967296) + 0.5)
+#define COS0_4  (0.27655194801 * (4294967296) + 0.5)
+#define COS0_5  (0.2914674841 * (4294967296) + 0.5)
+#define COS0_6  (0.31125206151 * (4294967296) + 0.5)
+#define COS0_7  (0.33740417072 * (4294967296) + 0.5)
+#define COS0_8  (0.3722681355 * (4294967296) + 0.5)
+#define COS0_9  (0.4196748227 * (4294967296) + 0.5)
+#define COS0_10 (0.48628411893 * (4294967296) + 0.5)
+#define COS0_11 (0.29235998335 * (4294967296) + 0.5)
+#define COS0_12 (0.37104115407 * (4294967296) + 0.5)
+#define COS0_13 (0.25722262624 * (4294967296) + 0.5)
+#define COS0_14 (0.4259510523 * (4294967296) + 0.5)
+#define COS0_15 (0.31843775386 * (4294967296) + 0.5)
 
 #define COS1_0 FIXHR(0.50241928618815570551/2)
 #define COS1_1 FIXHR(0.52249861493968888062/2)
@@ -1832,7 +1832,6 @@ static void compute_imdct(
     tab[b] += tab[d];\
 }
 
-#define ADD(a, b) tab[a] += tab[b]
 
 static void dct32(int32_t *out, int32_t *tab)
 {
@@ -1940,14 +1939,14 @@ static void dct32(int32_t *out, int32_t *tab)
     BF2(28, 29, 30, 31);
 
     /* pass 6 */
+	tab[8] += tab[12];
+	tab[12] += tab[10];
+	tab[10] += tab[14];
+	tab[14] += tab[9];
+	tab[9] += tab[13];
+	tab[13] += tab[11];
+	tab[11] += tab[15];
 
-    ADD( 8, 12);
-    ADD(12, 10);
-    ADD(10, 14);
-    ADD(14,  9);
-    ADD( 9, 13);
-    ADD(13, 11);
-    ADD(11, 15);
 
     out[ 0] = tab[0];
     out[16] = tab[1];
@@ -1965,14 +1964,14 @@ static void dct32(int32_t *out, int32_t *tab)
     out[22] = tab[13];
     out[14] = tab[14];
     out[30] = tab[15];
-
-    ADD(24, 28);
-    ADD(28, 26);
-    ADD(26, 30);
-    ADD(30, 25);
-    ADD(25, 29);
-    ADD(29, 27);
-    ADD(27, 31);
+	
+	tab[24] += tab[28];
+	tab[28] += tab[26];
+	tab[26] += tab[30];
+	tab[30] += tab[25];
+	tab[25] += tab[29];
+	tab[29] += tab[27];
+	tab[27] += tab[31];
 
     out[ 1] = tab[16] + tab[24];
     out[17] = tab[17] + tab[25];
@@ -2375,6 +2374,7 @@ static int mp3_decode_main(
     mp3_context_t *s,
     int16_t *samples, const uint8_t *buf, int buf_size
 ) {
+	asm volatile("");
     int i, nb_frames, ch;
     int16_t *samples_ptr;
 

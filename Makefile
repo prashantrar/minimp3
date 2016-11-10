@@ -1,11 +1,11 @@
 # note: this Makefile builds the Linux version only
 
-CFLAGS = -Wall -Os  -O3
-CFLAGS += -ffast-math
-CFLAGS += -finline-functions-called-once
-CFLAGS += -fno-loop-optimize
-CFLAGS += -fexpensive-optimizations
-CFLAGS += -fpeephole2
+#CFLAGS = -Wall -Os  -O3
+#CFLAGS += -ffast-math
+#CFLAGS += -finline-functions-called-once
+#CFLAGS += -fno-loop-optimize
+#CFLAGS += -fexpensive-optimizations
+#CFLAGS += -fpeephole2
 
 STRIPFLAGS  = -R .comment
 STRIPFLAGS += -R .note
@@ -14,7 +14,7 @@ STRIPFLAGS += -R .gnu.version
 
 BIN = minimp3
 FINALBIN = $(BIN)-linux
-OBJS = player_convwav.o minimp3.o
+OBJS = player_amebamod.o minimp3.o
 
 all:	$(BIN)
 
@@ -26,10 +26,10 @@ test:	$(BIN)
 	./$(BIN) "../../../Gargaj -- Rude Awakening.mp3"
 
 $(BIN):	$(OBJS)
-	gcc $(OBJS) -o $(BIN) -lm -O3
+	gcc -g $(OBJS) -o $(BIN) -lm -O3
 
 %.o:	%.c
-	gcc $(CFLAGS) -c $< -o $@
+	gcc -g $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(BIN) $(OBJS)

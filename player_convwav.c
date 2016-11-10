@@ -1,6 +1,5 @@
 // minimp3 example player application for Linux/OSS
 // this file is public domain -- do with it whatever you want!
-#include "libc.h"
 #include "minimp3.h"
 #include <unistd.h>
 #include <fcntl.h>
@@ -12,11 +11,10 @@
 
 size_t strlen(const char *s);
 
-#define DECODE_FRAME_SIZE 1024
+#define DECODE_FRAME_SIZE 4096
 int main(int argc, char *argv[]) {
     mp3_decoder_t mp3;
     mp3_info_t info;
-    int pcm;
 	FILE *fp;
 	FILE *fp_wav;
     unsigned char *stream_pos;
@@ -26,8 +24,7 @@ int main(int argc, char *argv[]) {
 	int decode_frame = DECODE_FRAME_SIZE;
 	
     int frame_size;
-    int value;
-	int i = 0;
+	//int i = 0;
 
     printf("minimp3 -- a small MPEG-1 Audio Layer III player based on ffmpeg\n\n");
     if (argc < 2) {
@@ -97,10 +94,10 @@ int main(int argc, char *argv[]) {
 		fread(stream_pos,sizeof(unsigned char),decode_frame,fp);
 		frame_size = mp3_decode(mp3, stream_pos, decode_frame, sample_buf, NULL);
 		
-		for(i=0;i<info.audio_bytes;i++)
+		/*for(i=0;i<info.audio_bytes;i++)
 		{
-			printf("%x",sample_buf[i]);
-		}
+			printf("%x ",sample_buf[i]);
+		}*/
 	}
 	fclose(fp_wav);
 	free(stream_pos);
